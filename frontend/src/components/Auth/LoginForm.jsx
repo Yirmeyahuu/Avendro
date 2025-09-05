@@ -22,27 +22,29 @@ const LoginForm = ({ onSuccess, isLoading, setIsLoading }) => {
 
   return (
     <form onSubmit={handleSubmit}>
-      <div className="form-group">
+      <div className="mb-3">
         <label className="form-label">Email</label>
         <input
           type="email"
           name="email"
           value={formData.email}
           onChange={handleChange}
-          className="form-input"
+          className="form-control"
+          placeholder="Enter your email"
           required
         />
         {errors.email && <div className="error-message">{errors.email}</div>}
       </div>
 
-      <div className="form-group">
+      <div className="mb-3">
         <label className="form-label">Password</label>
         <input
           type="password"
           name="password"
           value={formData.password}
           onChange={handleChange}
-          className="form-input"
+          className="form-control"
+          placeholder="Enter your password"
           required
         />
         {errors.password && <div className="error-message">{errors.password}</div>}
@@ -53,7 +55,7 @@ const LoginForm = ({ onSuccess, isLoading, setIsLoading }) => {
         disabled={isLoading}
         className="submit-button"
       >
-        {isLoading ? 'Logging in...' : 'Login'}
+        {isLoading ? 'Signing in...' : 'Sign In'}
       </button>
     </form>
   )
