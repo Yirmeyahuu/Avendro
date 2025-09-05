@@ -1,0 +1,55 @@
+.landing-page {
+  min-height: 100vh;
+  font-family: 'Inter', sans-serif;
+}
+
+.header {
+  background: white;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.hero {
+  min-height: 70vh;
+  display: flex;
+  align-items: center;
+}
+
+.registration-options {
+  margin-top: 2rem;
+}
+
+.features {
+  background: #f8fafc;
+}
+
+.feature-card {
+  transition: transform 0.3s ease;
+  border-radius: 12px;
+  background: white;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+}
+
+.feature-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+}
+
+.footer {
+  margin-top: auto;
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+  .hero h2 {
+    font-size: 2.5rem;
+  }
+  
+  .registration-options {
+    flex-direction: column;
+  }
+  
+  .registration-options button {
+    width: 100%;
+    max-width: 300px;
+  }
+}
