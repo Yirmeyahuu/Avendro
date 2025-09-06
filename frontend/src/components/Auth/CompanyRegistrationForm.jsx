@@ -1,4 +1,5 @@
 import React, { useState } from 'react'
+import { authAPI } from '../../services/api'
 
 const CompanyRegistrationForm = ({ onSuccess, isLoading, setIsLoading }) => {
   const [formData, setFormData] = useState({
@@ -20,16 +21,63 @@ const CompanyRegistrationForm = ({ onSuccess, isLoading, setIsLoading }) => {
       ...formData,
       [e.target.name]: e.target.value
     })
+    // Clear error for this field when user starts typing
+    if (errors[e.target.name]) {
+      setErrors({
+        ...errors,
+        [e.target.name]: ''
+      })
+    }
   }
 
   const handleSubmit = async (e) => {
     e.preventDefault()
-    // API call will be implemented here
-    console.log('Company registration:', formData)
+    setIsLoading(true)
+    setErrors({})
+
+    try {
+      const response = await authAPI.registerCompany(formData)
+      console.log('Company registration successful:', response)
+      
+      // Show success message
+      alert('Company registration successful! Welcome to Avendro!')
+      onSuccess()
+      
+    } catch (error) {
+      console.error('Registration error:', error)
+      
+      // Handle validation errors
+      if (error.message.includes('400')) {
+        setErrors({
+          general: 'Please check your input and try again.'
+        })
+      } else if (error.message.includes('email')) {
+        setErrors({
+          email: 'This email is already registered.'
+        })
+      } else if (error.message.includes('registration number')) {
+        setErrors({
+          company_registration_number: 'This registration number already exists.'
+        })
+      } else {
+        setErrors({
+          general: error.message || 'Registration failed. Please try again.'
+        })
+      }
+    } finally {
+      setIsLoading(false)
+    }
   }
 
   return (
     <form onSubmit={handleSubmit}>
+      {/* General Error Message */}
+      {errors.general && (
+        <div className="alert alert-danger mb-3" role="alert">
+          {errors.general}
+        </div>
+      )}
+
       {/* Account Information Section */}
       <div className="mb-4">
         <h5 className="fw-semibold text-dark mb-3">Account Information</h5>
@@ -93,6 +141,9 @@ const CompanyRegistrationForm = ({ onSuccess, isLoading, setIsLoading }) => {
               placeholder="Business Registration No."
               required
             />
+            {errors.company_registration_number && (
+              <div className="error-message">{errors.company_registration_number}</div>
+            )}
           </div>
           <div className="col-md-6 mb-3">
             <label className="form-label">Company Phone</label>
@@ -116,6 +167,7 @@ const CompanyRegistrationForm = ({ onSuccess, isLoading, setIsLoading }) => {
             className="form-control"
             rows="3"
             placeholder="Complete business address"
+            required
           />
         </div>
       </div>
@@ -134,6 +186,7 @@ const CompanyRegistrationForm = ({ onSuccess, isLoading, setIsLoading }) => {
               onChange={handleChange}
               className="form-control"
               placeholder="First name"
+              required
             />
           </div>
           <div className="col-md-6 mb-3">
@@ -145,6 +198,7 @@ const CompanyRegistrationForm = ({ onSuccess, isLoading, setIsLoading }) => {
               onChange={handleChange}
               className="form-control"
               placeholder="Last name"
+              required
             />
           </div>
         </div>

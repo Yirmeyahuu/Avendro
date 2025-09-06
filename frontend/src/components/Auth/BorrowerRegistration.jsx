@@ -1,4 +1,5 @@
 import React, { useState } from 'react'
+import { authAPI } from '../../services/api'
 
 const BorrowerRegistrationForm = ({ onSuccess, isLoading, setIsLoading }) => {
   const [formData, setFormData] = useState({
@@ -19,16 +20,59 @@ const BorrowerRegistrationForm = ({ onSuccess, isLoading, setIsLoading }) => {
       ...formData,
       [e.target.name]: e.target.value
     })
+    // Clear error for this field when user starts typing
+    if (errors[e.target.name]) {
+      setErrors({
+        ...errors,
+        [e.target.name]: ''
+      })
+    }
   }
 
   const handleSubmit = async (e) => {
     e.preventDefault()
-    // API call will be implemented here
-    console.log('Borrower registration:', formData)
+    setIsLoading(true)
+    setErrors({})
+
+    try {
+      const response = await authAPI.registerBorrower(formData)
+      console.log('Borrower registration successful:', response)
+      
+      // Show success message
+      alert('Registration successful! Welcome to Avendro!')
+      onSuccess()
+      
+    } catch (error) {
+      console.error('Registration error:', error)
+      
+      // Handle validation errors
+      if (error.message.includes('400')) {
+        setErrors({
+          general: 'Please check your input and try again.'
+        })
+      } else if (error.message.includes('email')) {
+        setErrors({
+          email: 'This email is already registered.'
+        })
+      } else {
+        setErrors({
+          general: error.message || 'Registration failed. Please try again.'
+        })
+      }
+    } finally {
+      setIsLoading(false)
+    }
   }
 
   return (
     <form onSubmit={handleSubmit}>
+      {/* General Error Message */}
+      {errors.general && (
+        <div className="alert alert-danger mb-3" role="alert">
+          {errors.general}
+        </div>
+      )}
+
       {/* Personal Information Section */}
       <div className="mb-4">
         <h5 className="fw-semibold text-dark mb-3">Personal Information</h5>

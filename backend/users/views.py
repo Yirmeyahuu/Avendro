@@ -8,12 +8,14 @@ from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework_simplejwt.authentication import JWTAuthentication
 from rest_framework_simplejwt.exceptions import InvalidToken, TokenError
 
-from .models import CustomUser
+from .models import CustomUser, Company, Client
 from .serializers import (
     BorrowerRegistrationSerializer, 
     LendingCompanyRegistrationSerializer,
     LoginSerializer,
-    UserProfileSerializer
+    UserProfileSerializer,
+    CompanySerializer,
+    ClientSerializer
 )
 
 class AuthViewSet(viewsets.ViewSet):
@@ -72,7 +74,7 @@ class AuthViewSet(viewsets.ViewSet):
                     'email': user.email,
                     'user_type': user.user_type,
                     'role': user.role,
-                    'company_name': user.company_name,
+                    'company_name': user.company_profile.company_name,
                     'full_name': user.get_full_name()
                 },
                 'tokens': {
@@ -96,6 +98,11 @@ class AuthViewSet(viewsets.ViewSet):
             refresh = RefreshToken.for_user(user)
             access_token = refresh.access_token
             
+            # Get additional user data based on user type
+            additional_data = {}
+            if user.user_type == 'lending_company' and hasattr(user, 'company_profile'):
+                additional_data['company_name'] = user.company_profile.company_name
+            
             return Response({
                 'message': 'Login successful',
                 'user': {
@@ -104,7 +111,7 @@ class AuthViewSet(viewsets.ViewSet):
                     'user_type': user.user_type,
                     'role': user.role,
                     'full_name': user.get_full_name(),
-                    'company_name': user.company_name if user.user_type == 'lending_company' else None
+                    **additional_data
                 },
                 'tokens': {
                     'access': str(access_token),
@@ -164,6 +171,46 @@ class AuthViewSet(viewsets.ViewSet):
             return Response({
                 'error': 'Invalid refresh token'
             }, status=status.HTTP_401_UNAUTHORIZED)
+
+class CompanyViewSet(viewsets.ModelViewSet):
+    """
+    ViewSet for Company management
+    """
+    queryset = Company.objects.all()
+    serializer_class = CompanySerializer
+    permission_classes = [permissions.IsAuthenticated]
+    
+    def get_queryset(self):
+        """
+        Filter companies based on user permissions
+        """
+        user = self.request.user
+        if user.role == 'admin':
+            return Company.objects.all()
+        elif user.user_type == 'lending_company':
+            return Company.objects.filter(user=user)
+        else:
+            return Company.objects.none()
+
+class ClientViewSet(viewsets.ModelViewSet):
+    """
+    ViewSet for Client management
+    """
+    queryset = Client.objects.all()
+    serializer_class = ClientSerializer
+    permission_classes = [permissions.IsAuthenticated]
+    
+    def get_queryset(self):
+        """
+        Filter clients based on user permissions
+        """
+        user = self.request.user
+        if user.role == 'admin':
+            return Client.objects.all()
+        elif user.user_type == 'borrower':
+            return Client.objects.filter(user=user)
+        else:
+            return Client.objects.none()
 
 class UserViewSet(viewsets.ModelViewSet):
     """
