@@ -1,5 +1,5 @@
 import React, { useState } from 'react'
-import BorrowerRegistrationForm from './BorrowerRegistration' 
+import BorrowerRegistrationForm from './BorrowerRegistrationForm' 
 import CompanyRegistrationForm from './CompanyRegistrationForm' 
 import '../../styles/AuthModal.css'
 
@@ -12,7 +12,7 @@ const RegisterModal = ({ type, onClose }) => {
     }
   }
 
-  // Dynamic content based on registration type››
+  // Dynamic content based on registration type
   const getModalContent = () => {
     if (type === 'borrower') {
       return {
@@ -33,7 +33,7 @@ const RegisterModal = ({ type, onClose }) => {
 
   return (
     <div className="modal-overlay" onClick={handleOverlayClick}>
-      <div className="modal-content register-modal">
+      <div className="modal-content register-modal wide-modal">
         {/* Modal Header */}
         <div className="modal-header">
           <div className="d-flex align-items-center">
@@ -89,4 +89,4 @@ const RegisterModal = ({ type, onClose }) => {
   )
 }
 
-export default RegisterModal
+export default RegisterModal 

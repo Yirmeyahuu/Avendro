@@ -692,13 +692,26 @@ const CompanyRegistrationForm = ({ onSuccess, isLoading, setIsLoading }) => {
       </div>
 
       {/* Submit Button */}
-      <button
-        type="submit"
-        disabled={isLoading}
-        className="submit-button"
-      >
-        {isLoading ? 'Creating Account...' : 'Create Company Account'}
-      </button>
+      <div className="text-center">
+        <button
+          type="submit"
+          disabled={isLoading}
+          className="btn btn-primary btn-lg px-5 py-3"
+          style={{ minWidth: '200px' }}
+        >
+          {isLoading ? (
+            <>
+              <span className="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
+              Creating Account...
+            </>
+          ) : (
+            <>
+              <i className="fas fa-user-plus me-2"></i>
+              Create Company Account
+            </>
+          )}
+        </button>
+      </div>
     </form>
   )
 }

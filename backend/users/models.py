@@ -144,34 +144,75 @@ class Company(models.Model):
 
 class Client(models.Model):
     """
-    Separate model for borrowers/clients
+    Model for borrowers/clients with comprehensive personal and financial information
     """
+    # Philippine Regions (same as Company model)
+    REGION_CHOICES = [
+        ('ncr', 'National Capital Region (NCR)'),
+        ('car', 'Cordillera Administrative Region (CAR)'),
+        ('region1', 'Ilocos Region (Region I)'),
+        ('region2', 'Cagayan Valley (Region II)'),
+        ('region3', 'Central Luzon (Region III)'),
+        ('region4a', 'CALABARZON (Region IV-A)'),
+        ('region4b', 'MIMAROPA (Region IV-B)'),
+        ('region5', 'Bicol Region (Region V)'),
+        ('region6', 'Western Visayas (Region VI)'),
+        ('region7', 'Central Visayas (Region VII)'),
+        ('region8', 'Eastern Visayas (Region VIII)'),
+        ('region9', 'Zamboanga Peninsula (Region IX)'),
+        ('region10', 'Northern Mindanao (Region X)'),
+        ('region11', 'Davao Region (Region XI)'),
+        ('region12', 'SOCCSKSARGEN (Region XII)'),
+        ('region13', 'Caraga (Region XIII)'),
+        ('barmm', 'Bangsamoro Autonomous Region in Muslim Mindanao (BARMM)'),
+    ]
+    
     user = models.OneToOneField(CustomUser, on_delete=models.CASCADE, related_name='client_profile')
     
-    # Personal information
+    # Personal Information
     middle_name = models.CharField(max_length=100, blank=True, null=True)
-    gender = models.CharField(max_length=10, choices=[
+    gender = models.CharField(max_length=10, default='' , choices=[
         ('male', 'Male'),
         ('female', 'Female'),
         ('other', 'Other')
-    ], blank=True, null=True)
+    ])
+    marital_status = models.CharField(max_length=20, blank=True, null=True, choices=[
+        ('single', 'Single'),
+        ('married', 'Married'),
+        ('divorced', 'Divorced'),
+        ('widowed', 'Widowed'),
+        ('separated', 'Separated')
+    ])
     
-    # Contact information
-    emergency_contact_name = models.CharField(max_length=200, blank=True, null=True)
-    emergency_contact_phone = models.CharField(max_length=20, blank=True, null=True)
-    emergency_contact_relationship = models.CharField(max_length=100, blank=True, null=True)
+    # Current Address
+    current_street = models.CharField(max_length=255, help_text="Building No., Street Name", default="")
+    current_barangay = models.CharField(max_length=100, default="")
+    current_city = models.CharField(max_length=100, default="")
+    current_region = models.CharField(max_length=20, choices=REGION_CHOICES, default='ncr')
     
-    # Employment information
-    employment_status = models.CharField(max_length=100, blank=True, null=True)
-    employer_name = models.CharField(max_length=200, blank=True, null=True)
+    # Permanent Address
+    permanent_street = models.CharField(max_length=255, help_text="Building No., Street Name", default="")
+    permanent_barangay = models.CharField(max_length=100, default="")
+    permanent_city = models.CharField(max_length=100, default="")
+    permanent_region = models.CharField(max_length=20, choices=REGION_CHOICES, default='ncr')
+    
+    # Employment Information
+    employment_status = models.CharField(max_length=20, default='' , choices=[
+        ('employed', 'Employed'),
+        ('self_employed', 'Self-Employed'),
+        ('unemployed', 'Unemployed'),
+        ('retired', 'Retired'),
+        ('student', 'Student')
+    ])
+    company_name = models.CharField(max_length=200, blank=True, null=True)
+    job_title = models.CharField(max_length=150, blank=True, null=True)
     monthly_income = models.DecimalField(max_digits=12, decimal_places=2, blank=True, null=True)
+    source_of_income = models.TextField(help_text="Brief description of income source", blank=True, null=True)
     
-    # Financial information
-    credit_score = models.IntegerField(blank=True, null=True)
-    
-    # Status and verification
-    is_verified = models.BooleanField(default=False)
-    verification_date = models.DateTimeField(blank=True, null=True)
+    # Bank Information
+    bank_name = models.CharField(max_length=100, default="")
+    bank_account_number = models.CharField(max_length=50, default="")
+    bank_account_name = models.CharField(max_length=200, help_text="Account holder name", default="")
     
     # Timestamps
     created_at = models.DateTimeField(auto_now_add=True)
@@ -184,3 +225,11 @@ class Client(models.Model):
     
     def __str__(self):
         return f"{self.user.get_full_name()} ({self.user.email})"
+    
+    @property
+    def full_current_address(self):
+        return f"{self.current_street}, {self.current_barangay}, {self.current_city}, {self.get_current_region_display()}"
+    
+    @property
+    def full_permanent_address(self):
+        return f"{self.permanent_street}, {self.permanent_barangay}, {self.permanent_city}, {self.get_permanent_region_display()}"

@@ -3,35 +3,177 @@ from django.contrib.auth import authenticate
 from django.contrib.auth.password_validation import validate_password
 from .models import CustomUser, Company, Client
 
+
+
+# At the top of the file, add:
+REGION_CHOICES = [
+    ('ncr', 'National Capital Region (NCR)'),
+    ('car', 'Cordillera Administrative Region (CAR)'),
+    ('region1', 'Ilocos Region (Region I)'),
+    ('region2', 'Cagayan Valley (Region II)'),
+    ('region3', 'Central Luzon (Region III)'),
+    ('region4a', 'CALABARZON (Region IV-A)'),
+    ('region4b', 'MIMAROPA (Region IV-B)'),
+    ('region5', 'Bicol Region (Region V)'),
+    ('region6', 'Western Visayas (Region VI)'),
+    ('region7', 'Central Visayas (Region VII)'),
+    ('region8', 'Eastern Visayas (Region VIII)'),
+    ('region9', 'Zamboanga Peninsula (Region IX)'),
+    ('region10', 'Northern Mindanao (Region X)'),
+    ('region11', 'Davao Region (Region XI)'),
+    ('region12', 'SOCCSKSARGEN (Region XII)'),
+    ('region13', 'Caraga (Region XIII)'),
+    ('barmm', 'Bangsamoro Autonomous Region in Muslim Mindanao (BARMM)'),
+]
+
+
 class BorrowerRegistrationSerializer(serializers.ModelSerializer):
     """
-    Serializer for borrower registration
+    Serializer for comprehensive borrower registration
     """
     password = serializers.CharField(write_only=True, validators=[validate_password])
     password_confirm = serializers.CharField(write_only=True)
     
+    # Client profile fields
+    middle_name = serializers.CharField(max_length=100, required=False, allow_blank=True)
+    gender = serializers.ChoiceField(choices=[
+        ('male', 'Male'),
+        ('female', 'Female'),
+        ('other', 'Other')
+    ])
+    marital_status = serializers.ChoiceField(
+        choices=[
+            ('single', 'Single'),
+            ('married', 'Married'),
+            ('divorced', 'Divorced'),
+            ('widowed', 'Widowed'),
+            ('separated', 'Separated')
+        ],
+        required=False,
+        allow_blank=True
+    )
+    
+    # Current Address
+    current_street = serializers.CharField(max_length=255)
+    current_barangay = serializers.CharField(max_length=100)
+    current_city = serializers.CharField(max_length=100)
+    current_region = serializers.ChoiceField(choices=REGION_CHOICES)
+
+    
+    # Permanent Address
+    permanent_street = serializers.CharField(max_length=255)
+    permanent_barangay = serializers.CharField(max_length=100)
+    permanent_city = serializers.CharField(max_length=100)
+    permanent_region = serializers.ChoiceField(choices=REGION_CHOICES)
+    
+    # Employment Information
+    employment_status = serializers.ChoiceField(choices=[
+        ('employed', 'Employed'),
+        ('self_employed', 'Self-Employed'),
+        ('unemployed', 'Unemployed'),
+        ('retired', 'Retired'),
+        ('student', 'Student')
+    ])
+    company_name = serializers.CharField(max_length=200, required=False, allow_blank=True)
+    job_title = serializers.CharField(max_length=150, required=False, allow_blank=True)
+    monthly_income = serializers.DecimalField(max_digits=12, decimal_places=2, required=False, allow_null=True)
+    source_of_income = serializers.CharField(required=False, allow_blank=True)
+    
+    # Bank Information
+    bank_name = serializers.CharField(max_length=100)
+    bank_account_number = serializers.CharField(max_length=50)
+    bank_account_name = serializers.CharField(max_length=200)
+    
     class Meta:
         model = CustomUser
         fields = (
+            # User fields
             'email', 'username', 'password', 'password_confirm',
-            'first_name', 'last_name', 'date_of_birth', 
-            'phone_number', 'address'
+            'first_name', 'last_name', 'date_of_birth', 'phone_number',
+            
+            # Client profile fields
+            'middle_name', 'gender', 'marital_status',
+            
+            # Current Address
+            'current_street', 'current_barangay', 'current_city', 'current_region',
+            
+            # Permanent Address
+            'permanent_street', 'permanent_barangay', 'permanent_city', 'permanent_region',
+            
+            # Employment
+            'employment_status', 'company_name', 'job_title', 'monthly_income', 'source_of_income',
+            
+            # Bank Information
+            'bank_name', 'bank_account_number', 'bank_account_name'
         )
     
     def validate(self, attrs):
         if attrs['password'] != attrs['password_confirm']:
             raise serializers.ValidationError("Passwords don't match.")
+        
+        # Validate employment fields based on status
+        employment_status = attrs.get('employment_status')
+        if employment_status in ['employed', 'self_employed']:
+            if not attrs.get('company_name'):
+                raise serializers.ValidationError({
+                    'company_name': 'Company name is required for employed/self-employed status.'
+                })
+            if not attrs.get('job_title'):
+                raise serializers.ValidationError({
+                    'job_title': 'Job title is required for employed/self-employed status.'
+                })
+            if not attrs.get('monthly_income'):
+                raise serializers.ValidationError({
+                    'monthly_income': 'Monthly income is required for employed/self-employed status.'
+                })
+        
+        # Validate income source for unemployed/student/retired
+        if employment_status in ['unemployed', 'student', 'retired']:
+            if not attrs.get('source_of_income'):
+                raise serializers.ValidationError({
+                    'source_of_income': 'Source of income description is required.'
+                })
+        
         return attrs
     
     def create(self, validated_data):
+        # Separate user fields from client profile fields
+        client_fields = [
+            'middle_name', 'gender', 'marital_status',
+            'current_street', 'current_barangay', 'current_city', 'current_region',
+            'permanent_street', 'permanent_barangay', 'permanent_city', 'permanent_region',
+            'employment_status', 'company_name', 'job_title', 'monthly_income', 'source_of_income',
+            'bank_name', 'bank_account_number', 'bank_account_name'
+        ]
+        
+        # Extract client data
+        client_data = {}
+        for field in client_fields:
+            if field in validated_data:
+                client_data[field] = validated_data.pop(field)
+        
+        # Handle empty strings and None values for optional fields
+        if not client_data.get('marital_status'):
+            client_data['marital_status'] = None
+        if not client_data.get('company_name'):
+            client_data['company_name'] = None
+        if not client_data.get('job_title'):
+            client_data['job_title'] = None
+        if not client_data.get('monthly_income'):
+            client_data['monthly_income'] = None
+        if not client_data.get('source_of_income'):
+            client_data['source_of_income'] = None
+        
+        # Remove password confirmation and set user type
         validated_data.pop('password_confirm')
         validated_data['user_type'] = 'borrower'
         validated_data['role'] = 'borrower'
         
+        # Create user
         user = CustomUser.objects.create_user(**validated_data)
         
-        # Create Client profile
-        Client.objects.create(user=user)
+        # Create Client profile with the extracted data
+        Client.objects.create(user=user, **client_data)
         
         return user
 
@@ -232,9 +374,56 @@ class CompanySerializer(serializers.ModelSerializer):
 
 class ClientSerializer(serializers.ModelSerializer):
     """
-    Serializer for Client model
+    Serializer for Client model with full user information
     """
+    # Include user fields
+    email = serializers.CharField(source='user.email', read_only=True)
+    first_name = serializers.CharField(source='user.first_name', read_only=True)
+    last_name = serializers.CharField(source='user.last_name', read_only=True)
+    date_of_birth = serializers.DateField(source='user.date_of_birth', read_only=True)
+    phone_number = serializers.CharField(source='user.phone_number', read_only=True)
+    
+    # Computed fields
+    full_name = serializers.SerializerMethodField()
+    full_current_address = serializers.ReadOnlyField()
+    full_permanent_address = serializers.ReadOnlyField()
+    
+    # Choice field display names
+    gender_display = serializers.CharField(source='get_gender_display', read_only=True)
+    marital_status_display = serializers.CharField(source='get_marital_status_display', read_only=True)
+    employment_status_display = serializers.CharField(source='get_employment_status_display', read_only=True)
+    current_region_display = serializers.CharField(source='get_current_region_display', read_only=True)
+    permanent_region_display = serializers.CharField(source='get_permanent_region_display', read_only=True)
+    
     class Meta:
         model = Client
-        fields = '__all__'
+        fields = [
+            'id',
+            # User information
+            'email', 'first_name', 'last_name', 'full_name', 'date_of_birth', 'phone_number',
+            
+            # Personal information
+            'middle_name', 'gender', 'gender_display', 'marital_status', 'marital_status_display',
+            
+            # Current Address
+            'current_street', 'current_barangay', 'current_city', 'current_region', 'current_region_display', 'full_current_address',
+            
+            # Permanent Address
+            'permanent_street', 'permanent_barangay', 'permanent_city', 'permanent_region', 'permanent_region_display', 'full_permanent_address',
+            
+            # Employment
+            'employment_status', 'employment_status_display', 'company_name', 'job_title', 
+            'monthly_income', 'source_of_income',
+            
+            # Bank Information
+            'bank_name', 'bank_account_number', 'bank_account_name',
+            
+            # Timestamps
+            'created_at', 'updated_at'
+        ]
         read_only_fields = ('id', 'created_at', 'updated_at')
+    
+    def get_full_name(self, obj):
+        if obj.middle_name:
+            return f"{obj.user.first_name} {obj.middle_name} {obj.user.last_name}".strip()
+        return obj.user.get_full_name()

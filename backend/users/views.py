@@ -27,7 +27,7 @@ class AuthViewSet(viewsets.ViewSet):
     @action(detail=False, methods=['post'])
     def register_borrower(self, request):
         """
-        Register a new borrower
+        Register a new borrower with comprehensive information
         """
         serializer = BorrowerRegistrationSerializer(data=request.data)
         if serializer.is_valid():
@@ -42,10 +42,16 @@ class AuthViewSet(viewsets.ViewSet):
                 'user': {
                     'id': user.id,
                     'email': user.email,
+                    'username': user.username,
                     'user_type': user.user_type,
                     'role': user.role,
-                    'full_name': user.get_full_name()
+                    'full_name': user.get_full_name(),
+                    'first_name': user.first_name,
+                    'last_name': user.last_name,
+                    'date_of_birth': user.date_of_birth,
+                    'phone_number': user.phone_number,
                 },
+                'client_profile': ClientSerializer(user.client_profile).data,
                 'tokens': {
                     'access': str(access_token),
                     'refresh': str(refresh)
@@ -84,6 +90,7 @@ class AuthViewSet(viewsets.ViewSet):
             }, status=status.HTTP_201_CREATED)
         
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    
     
     @action(detail=False, methods=['post'])
     def login(self, request):

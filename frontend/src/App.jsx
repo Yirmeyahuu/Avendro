@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react'
 import { BrowserRouter as Router } from 'react-router-dom'
 import LoginModal from './components/Auth/LoginModal'
 import CompanyDashboard from './components/Company/CompanyDashboard'
+import BorrowerDashboard from './components/Borrower/BorrowerDashboard'
 import LandingPage from './pages/Landingpage/LandingPage'
 import { authAPI } from './services/api'
 import './styles/App.css'
@@ -47,16 +48,39 @@ function App() {
 
   // Loading state
   if (isLoading) {
-    return <div>Loading...</div>
+    return (
+      <div className="d-flex justify-content-center align-items-center" style={{ height: '100vh' }}>
+        <div className="spinner-border text-primary" role="status">
+          <span className="visually-hidden">Loading...</span>
+        </div>
+      </div>
+    )
   }
 
-  // If user exists, show dashboard
+  // If user exists, show appropriate dashboard
   if (user) {
+    console.log('User logged in:', user.user_type)
+    
     if (user.user_type === 'lending_company') {
       return <CompanyDashboard user={user} onLogout={handleLogout} />
     }
-    // Add other user types here
-    return <div>Dashboard for {user.user_type}</div>
+    
+    if (user.user_type === 'borrower') {
+      return <BorrowerDashboard user={user} onLogout={handleLogout} />
+    }
+    
+    // Fallback for unknown user types
+    return (
+      <div className="d-flex justify-content-center align-items-center" style={{ height: '100vh' }}>
+        <div className="alert alert-warning">
+          <h4>Unknown User Type</h4>
+          <p>User type "{user.user_type}" is not recognized.</p>
+          <button className="btn btn-primary" onClick={handleLogout}>
+            Logout and Try Again
+          </button>
+        </div>
+      </div>
+    )
   }
 
   // No user, show landing page

@@ -216,30 +216,6 @@
   border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
 }
 
-/* Mobile Optimizations */
-@media (max-width: 576px) {
-  .modal-content {
-    margin: 0.5rem;
-    max-width: calc(100vw - 1rem);
-  }
-  
-  .modal-header,
-  .modal-body,
-  .modal-footer {
-    padding-left: 1.5rem;
-    padding-right: 1.5rem;
-  }
-  
-  .d-grid.gap-2.d-md-flex.justify-content-md-center {
-    flex-direction: column;
-  }
-  
-  .btn-outline-success,
-  .btn-outline-purple {
-    width: 100%;
-  }
-}
-
 /* Focus States for Accessibility */
 .btn-close:focus {
   box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.25);
@@ -263,26 +239,26 @@
   background: var(--neutral-400);
 }
 
-/* Register Modal Specific Styles */
-.register-modal {
-  max-width: 600px; /* Wider for registration forms */
+/* Register Modal Specific Styles (for regular width) */
+.register-modal:not(.wide-modal) .modal-content {
+  max-width: 600px;
 }
 
-.register-modal .modal-body {
+.register-modal:not(.wide-modal) .modal-body {
   max-height: 70vh;
   overflow-y: auto;
 }
 
-/* Section Headers */
-.register-modal h5 {
+/* Section Headers for regular modals */
+.register-modal:not(.wide-modal) h5 {
   font-family: var(--font-heading);
   color: var(--neutral-700);
   border-bottom: 2px solid var(--neutral-100);
   padding-bottom: 0.5rem;
 }
 
-/* Form Group Spacing */
-.register-modal .mb-4:last-of-type {
+/* Form Group Spacing for regular modals */
+.register-modal:not(.wide-modal) .mb-4:last-of-type {
   margin-bottom: 1.5rem !important;
 }
 
@@ -296,4 +272,343 @@
 .btn-link:hover {
   color: var(--primary-blue-dark);
   text-decoration: underline;
+}
+
+/* Mobile Optimizations for regular modals */
+@media (max-width: 576px) {
+  .modal-content:not(.wide-modal .modal-content) {
+    margin: 0.5rem;
+    max-width: calc(100vw - 1rem);
+  }
+  
+  .modal-header:not(.wide-modal .modal-header),
+  .modal-body:not(.wide-modal .modal-body),
+  .modal-footer:not(.wide-modal .modal-footer) {
+    padding-left: 1.5rem;
+    padding-right: 1.5rem;
+  }
+  
+  .d-grid.gap-2.d-md-flex.justify-content-md-center {
+    flex-direction: column;
+  }
+  
+  .btn-outline-success,
+  .btn-outline-purple {
+    width: 100%;
+  }
+}
+
+/* ============================================ */
+/* WIDE MODAL STYLES FOR BORROWER REGISTRATION */
+/* ============================================ */
+
+.borrower-registration-form {
+  max-width: 100%;
+  width: 100%;
+}
+
+.form-section {
+  background: #f8f9fa;
+  border-radius: 12px;
+  padding: 2.5rem;
+  border: 1px solid #e9ecef;
+  margin-bottom: 2rem;
+}
+
+.section-title {
+  color: #2c3e50;
+  font-weight: 600;
+  border-bottom: 2px solid #3498db;
+  padding-bottom: 0.5rem;
+  margin-bottom: 1.5rem;
+  font-size: 1.25rem;
+}
+
+/* FIXED: Wide Modal Styles with higher specificity */
+.modal-overlay .wide-modal.modal-content,
+.wide-modal.modal-content {
+  max-width: 1400px !important;
+  width: 90vw !important;
+  max-height: 95vh !important;
+  overflow-y: auto !important;
+  margin: 1rem auto !important;
+  border-radius: 16px !important;
+}
+
+.modal-overlay .wide-modal .modal-body,
+.wide-modal .modal-body {
+  padding: 3rem !important;
+}
+
+.modal-overlay .wide-modal .modal-header,
+.wide-modal .modal-header {
+  padding: 1.5rem 3rem !important;
+  border-bottom: 2px solid #e9ecef !important;
+  background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%) !important;
+}
+
+.modal-overlay .wide-modal .modal-footer,
+.wide-modal .modal-footer {
+  padding: 1rem 3rem !important;
+  border-top: 2px solid #e9ecef !important;
+  background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%) !important;
+}
+
+/* Form Controls for wide modal */
+.wide-modal .form-control, 
+.wide-modal .form-select {
+  padding: 0.75rem 1rem;
+  font-size: 1rem;
+  border-radius: 8px;
+  border: 1px solid #ced4da;
+  transition: all 0.3s ease;
+}
+
+.wide-modal .form-control:focus,
+.wide-modal .form-select:focus {
+  border-color: #3498db;
+  box-shadow: 0 0 0 0.25rem rgba(52, 152, 219, 0.25);
+  transform: translateY(-1px);
+  outline: none;
+  border-width: 2px;
+}
+
+.wide-modal .form-label {
+  font-weight: 600;
+  color: #2c3e50;
+  margin-bottom: 0.5rem;
+  font-size: 0.95rem;
+}
+
+/* Enhanced Grid Layout for wide modal */
+.wide-modal .row.g-3 {
+  --bs-gutter-x: 2rem;
+  --bs-gutter-y: 1.5rem;
+}
+
+/* Form Check Styles for wide modal */
+.wide-modal .form-check-input:checked {
+  background-color: #3498db;
+  border-color: #3498db;
+  transform: scale(1.1);
+}
+
+.wide-modal .form-check-label {
+  font-weight: 500;
+  color: #495057;
+  margin-left: 0.5rem;
+}
+
+/* Button Styles for wide modal */
+.wide-modal .btn-primary {
+  background: linear-gradient(135deg, #3498db, #2980b9);
+  border: none;
+  border-radius: 10px;
+  font-weight: 600;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 15px rgba(52, 152, 219, 0.3);
+}
+
+.wide-modal .btn-primary:hover {
+  background: linear-gradient(135deg, #2980b9, #21618c);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(52, 152, 219, 0.4);
+}
+
+.wide-modal .btn-primary:disabled {
+  background: #6c757d;
+  transform: none;
+  box-shadow: none;
+}
+
+/* Error Styles for wide modal */
+.wide-modal .text-danger {
+  color: #e74c3c !important;
+  font-weight: 600;
+  margin-left: 2px;
+}
+
+.wide-modal .invalid-feedback {
+  font-size: 0.875rem;
+  font-weight: 500;
+}
+
+.wide-modal .is-invalid {
+  border-color: #e74c3c !important;
+  box-shadow: 0 0 0 0.25rem rgba(231, 76, 60, 0.25) !important;
+}
+
+/* Alert Styles for wide modal */
+.wide-modal .alert-danger {
+  background: linear-gradient(135deg, #e74c3c, #c0392b);
+  border: none;
+  color: white;
+  border-radius: 10px;
+  font-weight: 500;
+}
+
+/* Icon Styles for wide modal */
+.wide-modal .section-title i {
+  color: #3498db;
+  margin-right: 0.75rem;
+}
+
+/* Enhanced Spacing for wide modal */
+.wide-modal .mt-2 {
+  margin-top: 1rem !important;
+}
+
+.wide-modal .mb-3 {
+  margin-bottom: 1.5rem !important;
+}
+
+.wide-modal .mb-4 {
+  margin-bottom: 2rem !important;
+}
+
+.wide-modal .mb-5 {
+  margin-bottom: 2.5rem !important;
+}
+
+/* Enhanced form sections with better visual separation */
+.wide-modal .form-section:nth-child(even) {
+  background: #ffffff;
+  border: 1px solid #dee2e6;
+}
+
+.wide-modal .form-section:nth-child(odd) {
+  background: #f8f9fa;
+  border: 1px solid #e9ecef;
+}
+
+/* Enhanced submit button area */
+.wide-modal .text-center {
+  padding: 2rem 0;
+  background: linear-gradient(135deg, #f8f9fa, #e9ecef);
+  margin: 2rem -2.5rem -2.5rem -2.5rem;
+  border-radius: 0 0 12px 12px;
+}
+
+/* Custom Scrollbar for Wide Modal */
+.wide-modal .modal-content::-webkit-scrollbar {
+  width: 8px;
+}
+
+.wide-modal .modal-content::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 4px;
+}
+
+.wide-modal .modal-content::-webkit-scrollbar-thumb {
+  background: #3498db;
+  border-radius: 4px;
+}
+
+.wide-modal .modal-content::-webkit-scrollbar-thumb:hover {
+  background: #2980b9;
+}
+
+/* ============================================ */
+/* RESPONSIVE DESIGN FOR WIDE MODAL */
+/* ============================================ */
+
+@media (max-width: 1400px) {
+  .modal-overlay .wide-modal.modal-content,
+  .wide-modal.modal-content {
+    width: 95vw !important;
+    max-width: 1200px !important;
+  }
+}
+
+@media (max-width: 1200px) {
+  .modal-overlay .wide-modal.modal-content,
+  .wide-modal.modal-content {
+    width: 95vw !important;
+    max-width: 1000px !important;
+  }
+  
+  .wide-modal .modal-body {
+    padding: 2rem !important;
+  }
+}
+
+@media (max-width: 992px) {
+  .modal-overlay .wide-modal.modal-content,
+  .wide-modal.modal-content {
+    width: 95vw !important;
+    max-width: 800px !important;
+  }
+  
+  .wide-modal .form-section {
+    padding: 2rem;
+  }
+  
+  .wide-modal .row.g-3 {
+    --bs-gutter-x: 1.5rem;
+  }
+}
+
+@media (max-width: 768px) {
+  .modal-overlay .wide-modal.modal-content,
+  .wide-modal.modal-content {
+    width: 95vw !important;
+    max-width: 700px !important;
+    margin: 0.5rem auto !important;
+  }
+  
+  .wide-modal .modal-body {
+    padding: 1.5rem !important;
+  }
+  
+  .wide-modal .modal-header,
+  .wide-modal .modal-footer {
+    padding: 1rem 1.5rem !important;
+  }
+  
+  .wide-modal .form-section {
+    padding: 1.5rem;
+  }
+  
+  .wide-modal .row.g-3 {
+    --bs-gutter-x: 1rem;
+  }
+  
+  .wide-modal .text-center {
+    margin: 2rem -1.5rem -1.5rem -1.5rem;
+  }
+  
+  /* Stack columns on mobile */
+  .wide-modal .col-md-3,
+  .wide-modal .col-md-4,
+  .wide-modal .col-md-6 {
+    width: 100% !important;
+    margin-bottom: 1rem;
+  }
+}
+
+@media (max-width: 576px) {
+  .modal-overlay .wide-modal.modal-content,
+  .wide-modal.modal-content {
+    width: 98vw !important;
+    max-width: 95vw !important;
+    margin: 0.25rem auto !important;
+    min-height: 95vh !important;
+  }
+  
+  .wide-modal .modal-body {
+    padding: 1rem !important;
+  }
+  
+  .wide-modal .form-section {
+    padding: 1rem;
+  }
+  
+  .wide-modal .section-title {
+    font-size: 1.1rem;
+  }
+  
+  .wide-modal .text-center {
+    margin: 2rem -1rem -1rem -1rem;
+    padding: 1.5rem 0;
+  }
 }

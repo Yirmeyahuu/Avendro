@@ -2,41 +2,18 @@ import React, { useState, useEffect } from 'react'
 import Sidebar from '../shared/Sidebar/Sidebar'
 import Header from '../shared/Header/Header'
 import CompanyOverview from './CompanyOverview'
-import '../../styles/CompanyDashboard.css'
+import '../../styles/CompanyDashboard.css' 
+
+console.log('CompanyDashboard component loaded!')
 
 const CompanyDashboard = ({ user, onLogout }) => {
+  console.log('CompanyDashboard rendering with user:', user)
   const [activeSection, setActiveSection] = useState('overview')
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false)
-  const [isLoading, setIsLoading] = useState(true)
 
   useEffect(() => {
-    console.log('🏢 CompanyDashboard mounted for user:', user)
-    // Simulate loading time for smooth transition
-    setTimeout(() => {
-      setIsLoading(false)
-    }, 500)
+    console.log('Company Dashboard loaded for:', user)
   }, [user])
-
-  // Show loading if user data is not ready
-  if (!user || isLoading) {
-    return (
-      <div className="dashboard-loading" style={{
-        display: 'flex',
-        justifyContent: 'center',
-        alignItems: 'center',
-        height: '100vh',
-        backgroundColor: '#f8f9fa'
-      }}>
-        <div style={{ textAlign: 'center' }}>
-          <div className="spinner-border text-primary mb-3" role="status">
-            <span className="sr-only">Loading...</span>
-          </div>
-          <h5>Loading Dashboard...</h5>
-          <p className="text-muted">Welcome back, {user?.full_name}!</p>
-        </div>
-      </div>
-    )
-  }
 
   // Company-specific menu items
   const menuItems = [
@@ -167,7 +144,7 @@ const CompanyDashboard = ({ user, onLogout }) => {
           </div>
         )
       default:
-        return <CompanyOverview user={user} />
+        return <div>Section not found</div>
     }
   }
 
