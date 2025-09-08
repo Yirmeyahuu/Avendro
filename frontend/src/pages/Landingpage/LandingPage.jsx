@@ -1,6 +1,6 @@
-import React, { useState } from 'react'
-import RegisterModal from '../../components/Auth/RegisterModal'
-import LoginModal from '../../components/Auth/LoginModal'
+import React, { useState } from "react";
+import RegisterModal from "../../components/auth/RegisterModal";
+import LoginModal from "../../components/auth/LoginModal";
 
 const LandingPage = () => {
   const [showRegisterModal, setShowRegisterModal] = useState(false)

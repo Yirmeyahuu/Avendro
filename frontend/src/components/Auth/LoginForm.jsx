@@ -1,7 +1,7 @@
 import React, { useState } from 'react'
 import { authAPI } from '../../services/api'
 
-const LoginForm = ({ onSuccess, isLoading, setIsLoading }) => {
+const LoginForm = ({ onSuccess, onLoginSuccess, isLoading, setIsLoading }) => {
   const [formData, setFormData] = useState({
     email: '',
     password: ''
@@ -31,9 +31,16 @@ const LoginForm = ({ onSuccess, isLoading, setIsLoading }) => {
       const response = await authAPI.login(formData)
       console.log('Login successful:', response)
       
-      // Show success message
-      alert(`Welcome back, ${response.user.full_name}!`)
-      onSuccess()
+      // ❌ REMOVE THIS BLOCKING ALERT
+      // alert(`Welcome back, ${response.user.full_name}!`)
+      
+      // ✅ Call success callback immediately
+      if (onLoginSuccess) {
+        // Pass user data and tokens to App component
+        onLoginSuccess(response.user, response.tokens)
+      } else {
+        onSuccess()
+      }
       
     } catch (error) {
       console.error('Login error:', error)

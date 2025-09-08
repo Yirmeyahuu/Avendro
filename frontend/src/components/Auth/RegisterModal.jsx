@@ -1,6 +1,6 @@
 import React, { useState } from 'react'
-import BorrowerRegistrationForm from './BorrowerRegistration'
-import CompanyRegistrationForm from './CompanyRegistrationForm'
+import BorrowerRegistrationForm from './BorrowerRegistration' 
+import CompanyRegistrationForm from './CompanyRegistrationForm' 
 import '../../styles/AuthModal.css'
 
 const RegisterModal = ({ type, onClose }) => {
@@ -12,7 +12,7 @@ const RegisterModal = ({ type, onClose }) => {
     }
   }
 
-  // Dynamic content based on registration type
+  // Dynamic content based on registration type››
   const getModalContent = () => {
     if (type === 'borrower') {
       return {

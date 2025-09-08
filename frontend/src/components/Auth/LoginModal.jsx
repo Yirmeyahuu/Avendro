@@ -1,8 +1,8 @@
 import React, { useState } from 'react'
 import LoginForm from './LoginForm'
-import '../../styles/AuthModal.css' 
+import '../../styles/AuthModal.css'
 
-const LoginModal = ({ onClose }) => {
+const LoginModal = ({ onClose, onLoginSuccess }) => {
   const [isLoading, setIsLoading] = useState(false)
 
   const handleOverlayClick = (e) => {
@@ -45,6 +45,7 @@ const LoginModal = ({ onClose }) => {
         <div className="modal-body pt-2">
           <LoginForm 
             onSuccess={onClose}
+            onLoginSuccess={onLoginSuccess}
             isLoading={isLoading}
             setIsLoading={setIsLoading}
           />
