@@ -42,21 +42,85 @@ class CustomUser(AbstractUser):
 
 class Company(models.Model):
     """
-    Separate model for lending companies
+    Enhanced model for lending companies with Philippine business requirements
     """
+    # Loan Product Choices
+    LOAN_PRODUCT_CHOICES = [
+        ('personal', 'Personal Loans'),
+        ('business', 'Business Loans'),
+        ('salary', 'Salary Loans'),
+        ('vehicle', 'Vehicle Loans'),
+        ('housing', 'Housing Loans'),
+        ('payday', 'Payday Loans'),
+        ('collateral', 'Collateral Loans'),
+        ('sme', 'SME Loans'),
+    ]
+    
+    # Philippine Regions
+    REGION_CHOICES = [
+        ('ncr', 'National Capital Region (NCR)'),
+        ('car', 'Cordillera Administrative Region (CAR)'),
+        ('region1', 'Ilocos Region (Region I)'),
+        ('region2', 'Cagayan Valley (Region II)'),
+        ('region3', 'Central Luzon (Region III)'),
+        ('region4a', 'CALABARZON (Region IV-A)'),
+        ('region4b', 'MIMAROPA (Region IV-B)'),
+        ('region5', 'Bicol Region (Region V)'),
+        ('region6', 'Western Visayas (Region VI)'),
+        ('region7', 'Central Visayas (Region VII)'),
+        ('region8', 'Eastern Visayas (Region VIII)'),
+        ('region9', 'Zamboanga Peninsula (Region IX)'),
+        ('region10', 'Northern Mindanao (Region X)'),
+        ('region11', 'Davao Region (Region XI)'),
+        ('region12', 'SOCCSKSARGEN (Region XII)'),
+        ('region13', 'Caraga (Region XIII)'),
+        ('barmm', 'Bangsamoro Autonomous Region in Muslim Mindanao (BARMM)'),
+    ]
+    
     user = models.OneToOneField(CustomUser, on_delete=models.CASCADE, related_name='company_profile')
-    company_name = models.CharField(max_length=255)
-    company_registration_number = models.CharField(max_length=100, unique=True)
-    company_address = models.TextField()
-    company_phone = models.CharField(max_length=20, blank=True, null=True)
     
-    # Business details
-    business_type = models.CharField(max_length=100, blank=True, null=True)
-    license_number = models.CharField(max_length=100, blank=True, null=True)
+    # Basic Company Information
+    company_name = models.CharField(max_length=255, unique=True, default="")
     
-    # Status and verification
-    is_verified = models.BooleanField(default=False)
-    verification_date = models.DateTimeField(blank=True, null=True)
+    # Address Information (Separated as requested)
+    business_street = models.CharField(max_length=255, default='')
+    business_barangay = models.CharField(max_length=100, default='')
+    business_city = models.CharField(max_length=100, default='')
+    business_region = models.CharField(max_length=20, choices=REGION_CHOICES, default='ncr')
+    
+    # Contact Information
+    contact_person_name = models.CharField(max_length=200, default="")
+    contact_person_email = models.EmailField(default="")
+    contact_person_phone = models.CharField(max_length=20, default="")
+    company_phone = models.CharField(max_length=20, default="")
+    
+    # Legal Registration Information
+    sec_registration_number = models.CharField(max_length=100, unique=True, help_text="SEC Registration Number", default="")
+    company_tin = models.CharField(max_length=20, unique=True, help_text="Tax Identification Number", default="")
+    
+    # Business Operations
+    loan_products_offered = models.JSONField(default=list, help_text="List of loan products offered")
+    minimum_interest_rate = models.DecimalField(max_digits=5, decimal_places=2, help_text="Minimum interest rate (%)", blank=True, null=True)
+    maximum_interest_rate = models.DecimalField(max_digits=5, decimal_places=2, help_text="Maximum interest rate (%)", blank=True, null=True)
+    processing_fee = models.DecimalField(max_digits=5, decimal_places=2, blank=True, null=True, help_text="Processing fee (%)")
+    late_payment_fee = models.DecimalField(max_digits=5, decimal_places=2, blank=True, null=True, help_text="Late payment fee (%)")
+    
+    # Lending Policies
+    lending_policy_description = models.TextField(help_text="Brief description of loan approval process and criteria", blank=True, null=True)
+    minimum_loan_amount = models.DecimalField(max_digits=12, decimal_places=2, blank=True, null=True)
+    maximum_loan_amount = models.DecimalField(max_digits=12, decimal_places=2, blank=True, null=True)
+    loan_term_minimum_months = models.IntegerField(blank=True, null=True)
+    loan_term_maximum_months = models.IntegerField(blank=True, null=True)
+    
+    # Bank Account Information
+    bank_name = models.CharField(max_length=100, default="")
+    bank_account_number = models.CharField(max_length=50, default="")
+    bank_account_name = models.CharField(max_length=200, default="")
+    bank_branch = models.CharField(max_length=100, blank=True, null=True)
+    
+    # Business Details
+    business_type = models.CharField(max_length=100, default="")
+    license_number = models.CharField(max_length=100, default="")
     
     # Timestamps
     created_at = models.DateTimeField(auto_now_add=True)
@@ -68,7 +132,15 @@ class Company(models.Model):
         verbose_name_plural = 'Companies'
     
     def __str__(self):
-        return f"{self.company_name} ({self.company_registration_number})"
+        return f"{self.company_name} ({self.sec_registration_number})"
+    
+    def get_full_address(self):
+        return f"{self.business_street}, {self.business_barangay}, {self.business_city}, {self.get_business_region_display()}"
+    
+    def get_loan_products_display(self):
+        """Get display names for loan products"""
+        product_dict = dict(self.LOAN_PRODUCT_CHOICES)
+        return [product_dict.get(product, product) for product in self.loan_products_offered]
 
 class Client(models.Model):
     """
