@@ -2,6 +2,9 @@ import React, { useState } from 'react'
 import LoginForm from './LoginForm'
 import '../../styles/AuthModal.css'
 
+// In LoginModal.jsx, add this at the top of the component
+console.log('🔍 LoginModal props:', { onClose: typeof onClose, onLoginSuccess: typeof onLoginSuccess })
+
 const LoginModal = ({ onClose, onLoginSuccess }) => {
   const [isLoading, setIsLoading] = useState(false)
 
@@ -44,7 +47,6 @@ const LoginModal = ({ onClose, onLoginSuccess }) => {
         {/* Modal Body */}
         <div className="modal-body pt-2">
           <LoginForm 
-            onSuccess={onClose}
             onLoginSuccess={onLoginSuccess}
             isLoading={isLoading}
             setIsLoading={setIsLoading}

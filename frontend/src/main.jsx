@@ -11,7 +11,5 @@ link.rel = 'stylesheet'
 document.head.appendChild(link)
 
 ReactDOM.createRoot(document.getElementById('root')).render(
-  <React.StrictMode>
-    <App />
-  </React.StrictMode>,
+  <App />
 )

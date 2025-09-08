@@ -6,91 +6,60 @@ import LandingPage from './pages/Landingpage/LandingPage'
 import { authAPI } from './services/api'
 import './styles/App.css'
 
-
 function App() {
-  const [showLoginModal, setShowLoginModal] = useState(false)
   const [user, setUser] = useState(null)
+  const [showLoginModal, setShowLoginModal] = useState(false)
   const [isLoading, setIsLoading] = useState(true)
 
+  // Check for existing login on app start
   useEffect(() => {
-    // Check if user is already logged in
     const token = localStorage.getItem('access_token')
     const userData = localStorage.getItem('user_data')
     
     if (token && userData) {
       try {
-        const parsedUser = JSON.parse(userData)
-        setUser(parsedUser)
-        console.log('User loaded from localStorage:', parsedUser)
+        setUser(JSON.parse(userData))
       } catch (error) {
-        console.error('Error parsing user data:', error)
-        localStorage.removeItem('access_token')
-        localStorage.removeItem('user_data')
+        localStorage.clear()
       }
     }
     setIsLoading(false)
   }, [])
 
+  // DEAD SIMPLE LOGIN HANDLER
   const handleLoginSuccess = (userData, tokens) => {
-    console.log('Login success handler called:', userData, tokens)
-    console.log('Setting user state...')  // Add this debug log
-    setUser(userData)
+    console.log('🚀 Login successful:', userData)
+    
+    // Store data
     localStorage.setItem('access_token', tokens.access)
     localStorage.setItem('refresh_token', tokens.refresh)
     localStorage.setItem('user_data', JSON.stringify(userData))
+    
+    // Close modal and set user in one go
     setShowLoginModal(false)
-    console.log('Login flow completed, user set to:', userData)  // Add this debug log
+    setUser(userData)
   }
 
-  const handleLogout = async () => {
-    try {
-      const refreshToken = localStorage.getItem('refresh_token')
-      if (refreshToken) {
-        await authAPI.logout({ refresh_token: refreshToken })
-      }
-    } catch (error) {
-      console.error('Logout error:', error)
-    } finally {
-      setUser(null)
-      localStorage.removeItem('access_token')
-      localStorage.removeItem('refresh_token')
-      localStorage.removeItem('user_data')
-    }
+  const handleLogout = () => {
+    setUser(null)
+    localStorage.clear()
   }
 
+  // Loading state
   if (isLoading) {
-    return (
-      <div className="loading-container">
-        <div className="loading-spinner">Loading...</div>
-      </div>
-    )
+    return <div>Loading...</div>
   }
 
-  // Debug log
-  console.log('Current user state:', user)
-
-  // Show appropriate dashboard based on user type
+  // If user exists, show dashboard
   if (user) {
-    console.log('User exists, checking user_type:', user.user_type)  // Add this debug log
     if (user.user_type === 'lending_company') {
-      console.log('Rendering CompanyDashboard')  // Add this debug log
-      return (
-        <CompanyDashboard 
-          user={user} 
-          onLogout={handleLogout}
-        />
-      )
-    } else if (user.user_type === 'borrower') {
-      return (
-        <div className="borrower-dashboard">
-          <h1>Borrower Dashboard (Coming Soon)</h1>
-          <button onClick={handleLogout}>Logout</button>
-        </div>
-      )
+      return <CompanyDashboard user={user} onLogout={handleLogout} />
     }
+    // Add other user types here
+    return <div>Dashboard for {user.user_type}</div>
   }
 
-  console.log('Rendering LandingPage')  // Add this debug log
+  // No user, show landing page
   return (
     <Router>
       <div className="App">
